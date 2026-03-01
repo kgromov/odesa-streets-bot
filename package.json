@@ -4,9 +4,12 @@
   "description": "",
   "license": "ISC",
   "author": "kgromov",
-  "type": "module",
-  "main": "index.js",
+  "type": "commonjs",
+  "main": "app/bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1"
   }
 }
