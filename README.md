@@ -8,7 +8,7 @@ Send any part of a street name — the bot detects whether it's old or new and r
 ```
 ├── app/
 │   ├── bot.js                # Entry point
-│   ├── client.js             # CLI demo
+│   ├── demo.js               # CLI demo
 │   ├── Street.js             # Model
 │   ├── street.bot.js         # Bot logic
 │   ├── street.repository.js  # Database queries
@@ -54,8 +54,8 @@ npm run run    # plain node
 ## CLI Demo
 
 ```bash
-node --experimental-sqlite app/client.js              # built-in demo
-node --experimental-sqlite app/client.js Суворовська  # search by term
+node --experimental-sqlite app/demo.js              # built-in demo
+node --experimental-sqlite app/demo.js Суворовська  # search by term
 ```
 
 ## Requirements
