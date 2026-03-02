@@ -8,7 +8,7 @@
   "main": "app/bot.js",
   "scripts": {
     "dev": "nodemon --experimental-sqlite app/bot.js",
-    "run": "node --experimental-sqlite app/bot.js"
+    "build": "node --experimental-sqlite app/bot.js"
   },
   "dependencies": {
     "dotenv": "^17.3.1"
