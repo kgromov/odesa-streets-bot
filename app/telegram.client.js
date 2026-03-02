@@ -79,7 +79,7 @@ class TelegramClient {
     return this.call('sendMessage', {
       chat_id:    chatId,
       text,
-      parse_mode: 'MarkdownV2',
+      parse_mode: 'HTML',
       ...options,
     });
   }

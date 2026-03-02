@@ -1,13 +1,4 @@
-// ──────────────────────────────────────────────────────────────
-//  Odessa Streets — Telegram Bot entry point
-//
-//  Usage:
-//    BOT_TOKEN=<your_token> node --experimental-sqlite bot.js
-//
-//  Get a token:  Talk to @BotFather on Telegram → /newbot
-// ──────────────────────────────────────────────────────────────
-'use strict';
-
+require('dotenv').config();
 const path           = require('path');
 const TelegramClient = require('./telegram.client');
 const StreetBot      = require('./street.bot');

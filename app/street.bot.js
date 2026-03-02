@@ -1,11 +1,14 @@
 'use strict';
 
-const StreetRepository = require('./street.repository.js');
+const StreetRepository = require('./street.repository');
 
-// ── Telegram MarkdownV2 escaping ─────────────────────────────
-// Characters that must be escaped: _ * [ ] ( ) ~ ` > # + - = | { } . !
-const ESC_RE = /[_*[\]()~`>#+\-=|{}.!\\]/g;
-const esc    = str => str.replace(ESC_RE, '\\$&');
+// ── HTML escaping (the only 3 chars Telegram HTML mode cares about) ──
+// Much safer than MarkdownV2 where every punctuation mark is a minefield.
+const esc = str =>
+    str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 
 // ─────────────────────────────────────────────────────────────
 //  StreetBot
@@ -48,7 +51,7 @@ class StreetBot {
         const updates = await this._tg.getUpdates();
         for (const update of updates) {
           await this._handleUpdate(update).catch(err =>
-            console.error('Error handling update:', err)
+              console.error('Error handling update:', err)
           );
         }
       } catch (err) {
@@ -87,21 +90,21 @@ class StreetBot {
 
     if (cmd === '/start' || cmd === '/help') {
       const reply =
-        `🗺 *Одеські вулиці — довідник перейменувань*\n\n` +
-        `Надішліть мені *будь-яку частину* назви вулиці \\(стару або нову\\) ` +
-        `— і я покажу обидві назви та пояснення\\.\n\n` +
-        `*Приклади:*\n` +
-        `• \`Пушкінська\`\n` +
-        `• \`Гагаріна\`\n` +
-        `• \`Героїв\`\n\n` +
-        `_Пошук не враховує регістр і шукає як стару, так і нову назву\\._`;
+          `🗺 <b>Одеські вулиці — довідник перейменувань</b>\n\n` +
+          `Надішліть мені <b>будь-яку частину</b> назви вулиці (стару або нову) ` +
+          `— і я покажу обидві назви та пояснення.\n\n` +
+          `<b>Приклади:</b>\n` +
+          `• <code>Пушкінська</code>\n` +
+          `• <code>Гагаріна</code>\n` +
+          `• <code>Героїв</code>\n\n` +
+          `<i>Пошук не враховує регістр і шукає як стару, так і нову назву.</i>`;
 
       await this._tg.sendMessage(chatId, reply);
       return;
     }
 
     await this._tg.sendMessage(chatId,
-      `Невідома команда\\. Введіть назву вулиці або скористайтеся /help\\.`
+        `Невідома команда. Введіть назву вулиці або скористайтеся /help.`
     );
   }
 
@@ -115,29 +118,29 @@ class StreetBot {
 
     if (streets.length === 0) {
       await this._tg.sendMessage(chatId,
-        `🔍 За запитом *${esc(query)}* нічого не знайдено\\.\n\n` +
-        `Спробуйте ввести частину назви, наприклад: \`Суворовська\`\\.`
+          `🔍 За запитом <b>${esc(query)}</b> нічого не знайдено.\n\n` +
+          `Спробуйте ввести частину назви, наприклад: <code>Суворовська</code>.`
       );
       return;
     }
 
     // Cap results to avoid Telegram's 4096-char message limit
-    const MAX = 10;
+    const MAX      = 10;
     const shown    = streets.slice(0, MAX);
     const overflow = streets.length - MAX;
 
     const lines = shown.map(s => this._formatStreet(s, query));
-    let reply    = lines.join('\n\n');
+    let reply   = lines.join('\n\n');
 
     if (overflow > 0) {
-      reply += `\n\n_…та ще ${overflow} результат\\(ів\\)\\. Уточніть запит\\._`;
+      reply += `\n\n<i>…та ще ${overflow} результат(ів). Уточніть запит.</i>`;
     }
 
     await this._tg.sendMessage(chatId, reply);
   }
 
   /**
-   * Formats a single Street result for Telegram MarkdownV2.
+   * Formats a single Street result for Telegram HTML mode.
    * Detects whether the query matched the old or new name and frames
    * the arrow accordingly.
    */
@@ -149,18 +152,18 @@ class StreetBot {
     let arrow;
     if (matchOld && !matchNew) {
       // User typed the old name → show conversion to new
-      arrow = `📛 *${esc(street.oldName)}*\n➡️ ${esc(street.currentName)}`;
+      arrow = `📛 <b>${esc(street.oldName)}</b>\n➡️ ${esc(street.currentName)}`;
     } else if (matchNew && !matchOld) {
       // User typed the new name → show what it used to be
-      arrow = `🏷 *${esc(street.currentName)}*\n⬅️ _колишня_ ${esc(street.oldName)}`;
+      arrow = `🏷 <b>${esc(street.currentName)}</b>\n⬅️ <i>колишня</i> ${esc(street.oldName)}`;
     } else {
-      // Matched both columns (e.g. partial overlap) — show full pair
-      arrow = `📛 ${esc(street.oldName)} ➡️ *${esc(street.currentName)}*`;
+      // Matched both columns — show full pair
+      arrow = `📛 ${esc(street.oldName)} ➡️ <b>${esc(street.currentName)}</b>`;
     }
 
     const notesLine = street.hasNotes()
-      ? `\n📖 [Читати далі](${esc(street.notes)})`
-      : '';
+        ? `\n📖 <a href="${esc(street.notes)}">Читати далі</a>`
+        : '';
 
     return arrow + notesLine;
   }
