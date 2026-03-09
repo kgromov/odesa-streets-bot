@@ -7,7 +7,7 @@
 'use strict';
 
 const path             = require('path');
-const StreetRepository = require('./StreetRepository');
+const StreetRepository = require('./street.repository');
 
 // ── helpers ───────────────────────────────────────────────────
 

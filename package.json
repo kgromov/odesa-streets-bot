@@ -8,9 +8,13 @@
   "main": "app/bot.js",
   "scripts": {
     "dev": "nodemon --experimental-sqlite app/bot.js",
-    "build": "node --experimental-sqlite app/bot.js"
+    "build": "node --experimental-sqlite app/bot.js",
+    "embed": "nodemon --experimental-sqlite app/embed.js"
   },
   "dependencies": {
-    "dotenv": "^17.3.1"
+    "better-sqlite3": "^12.6.2",
+    "dotenv": "^17.3.1",
+    "ollama": "^0.6.3",
+    "uuid": "^13.0.0"
   }
 }
