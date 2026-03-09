@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon --experimental-sqlite app/bot.js",
     "build": "node --experimental-sqlite app/bot.js",
-    "embed": "nodemon --experimental-sqlite app/embed.js"
+    "embed": "nodemon --experimental-sqlite app/ai/vector-store.initializer.js"
   },
   "dependencies": {
     "better-sqlite3": "^12.6.2",
