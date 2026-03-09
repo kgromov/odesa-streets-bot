@@ -1,20 +1,18 @@
 require('dotenv').config();
-const path           = require('path');
 const TelegramClient = require('./telegram.client');
 const StreetBot      = require('./street.bot');
+const dbConfig = require('config/db-config');
+const botConfig = require('config/bot-config');
 
-const TOKEN   = process.env.BOT_TOKEN;
-const DB_PATH = path.join(__dirname, '/db/odessa_streets.db');
-
-if (!TOKEN) {
+if (!botConfig.botToken) {
   console.error('❌  Missing BOT_TOKEN environment variable.');
   console.error('    Set it and re-run:');
   console.error('    BOT_TOKEN=123:ABC node --experimental-sqlite app/bot.js');
   process.exit(1);
 }
 
-const client = new TelegramClient(TOKEN);
-const bot    = new StreetBot(client, DB_PATH);
+const client = new TelegramClient(botConfig.botToken);
+const bot    = new StreetBot(client, dbConfig.dbUrl);
 
 bot.start().catch(err => {
   console.error('Fatal error:', err);
