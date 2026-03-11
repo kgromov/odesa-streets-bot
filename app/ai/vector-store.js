@@ -2,8 +2,8 @@ require('dotenv').config();
 const aiModel = require('ollama').default;
 const {v4: uuidv4} = require('uuid');
 const Database = require('better-sqlite3');
-const dbConfig = require('app/config/db-config');
-const aiConfig = require('app/config/ai-config');
+const dbConfig = require('../config/db-config');
+const aiConfig = require('../config/ai-config');
 
 
 const DB = new Database(dbConfig.dbUrl);
@@ -33,7 +33,6 @@ class VectorStore {
 
 // TODO: move to StreetEmbeddingRepository
     async saveToDb(row) {
-        this.db.table()
         const transaction = this.db.transaction(() => {
             const stmt = this.db.prepare(`
                 INSERT INTO streets_embeddings

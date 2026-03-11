@@ -1,4 +1,4 @@
-const aiConfig = require('app/config/ai-config');
+const aiConfig = require('../config/ai-config');
 const ollama = require('ollama').default;
 
 class ChatClient{
@@ -21,14 +21,14 @@ class ChatClient{
 
     async checkSimilarity(query) {
         // TODO: move to StreetEmbeddingRepository
-        const rows = this.db.prepare(`SELECT * FROM streets_embeddings`);
+        const rows = this.db.prepare(`SELECT * FROM streets_embeddings`).all();
+        console.log(`Fetched ${rows.length} rows`);
         const matchedStreets = [];
         if (rows.length > 0) {
             const embedding = this.vectorStore.embed(query);
-
             for (const row of rows) {
-                const currentNameEmbeddings = new Float32Array(row.currentNameEmbeddings.buffer); // from SQLite BLOB to float32array
-                const oldNameEmbeddings = new Float32Array(row.oldNameEmbeddings.buffer); // from SQLite BLOB to float32array
+                const currentNameEmbeddings = new Float32Array(row.currentNameEmbeddings); // from SQLite BLOB to float32array
+                const oldNameEmbeddings = new Float32Array(row.oldNameEmbeddings); // from SQLite BLOB to float32array
                 const currentNameSimilarity = this.cosineSimilarity(embedding, currentNameEmbeddings); // Compute similarity
                 const oldNameSimilarity = this.cosineSimilarity(embedding, oldNameEmbeddings); // Compute similarity
                 console.log(`doc: ${row.name}, similarity: current = ${currentNameSimilarity}, old = ${oldNameSimilarity}, user query: ${query}`);
