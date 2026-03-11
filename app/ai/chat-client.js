@@ -25,19 +25,21 @@ class ChatClient{
         console.log(`Fetched ${rows.length} rows`);
         const matchedStreets = [];
         if (rows.length > 0) {
-            const embedding = this.vectorStore.embed(query);
+            const embedding = await this.vectorStore.embed(query);
             for (const row of rows) {
-                const currentNameEmbeddings = new Float32Array(row.currentNameEmbeddings); // from SQLite BLOB to float32array
-                const oldNameEmbeddings = new Float32Array(row.oldNameEmbeddings); // from SQLite BLOB to float32array
+                const currentNameEmbeddings = new Float32Array(row.current_name_embeddings.buffer); // from SQLite BLOB to float32array
+                const oldNameEmbeddings = new Float32Array(row.old_name_embeddings.buffer); // from SQLite BLOB to float32array
                 const currentNameSimilarity = this.cosineSimilarity(embedding, currentNameEmbeddings); // Compute similarity
                 const oldNameSimilarity = this.cosineSimilarity(embedding, oldNameEmbeddings); // Compute similarity
-                console.log(`doc: ${row.name}, similarity: current = ${currentNameSimilarity}, old = ${oldNameSimilarity}, user query: ${query}`);
-                const similarity = Math.max(currentNameSimilarity, currentNameSimilarity);
-                if (similarity > 0.75) { // If similarity is >60%, include in matches
+                const similarity = Math.max(currentNameSimilarity, oldNameSimilarity);
+                // if (row.streetId === 154) {
+                //     console.log(`doc: ${row.streetId}, similarity: current = ${row.current_name} => ${currentNameSimilarity}, old = ${row.old_name} => ${oldNameSimilarity}`);
+                // }
+                if (similarity > 0.85) { // If similarity is > 2/3, include in matches
                     if (currentNameSimilarity >= oldNameSimilarity) {
-                        matchedStreets.push(row.currentNameEmbeddings);
+                        matchedStreets.push(row.current_name);
                     } else {
-                        matchedStreets.push(row.oldNameEmbeddings);
+                        matchedStreets.push(row.old_name);
                     }
                 }
             }
@@ -47,20 +49,15 @@ class ChatClient{
     }
 
     cosineSimilarity(v1, v2) {
-        v1 = new Float32Array(v1.buffer); // Convert blob back to Float32
-        v2 = new Float32Array(v2.buffer);
-
         if (v1.length !== v2.length) {
             throw new Error("Vectors must be of the same length.");
         }
-
         let dot = 0, norm1Sq = 0, norm2Sq = 0;
         for (let i = 0; i < v1.length; i++) {
             dot += v1[i] * v2[i];
             norm1Sq += v1[i] * v1[i];
             norm2Sq += v2[i] * v2[i];
         }
-
         return dot / (Math.sqrt(norm1Sq) * Math.sqrt(norm2Sq)); // Returns a value between 0 and 1
     }
 }

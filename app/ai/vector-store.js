@@ -57,7 +57,7 @@ class VectorStore {
             truncate: true,
             input: content,
         });
-        console.log(JSON.stringify(res));
+        // console.log(JSON.stringify(res));
         return new Float32Array(res.embeddings.flat());
     }
 }

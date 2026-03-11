@@ -6,8 +6,8 @@ const Database = require("better-sqlite3");
 const dbConfig = require("../config/db-config");
 const ollama = require('ollama').default;
 
-console.log(`DB config: ${JSON.stringify(dbConfig)}`);
-console.log(`AI config: ${JSON.stringify(aiConfig)}`);
+// console.log(`DB config: ${JSON.stringify(dbConfig)}`);
+// console.log(`AI config: ${JSON.stringify(aiConfig)}`);
 chat('25 Чапаєвської дивізії');
 
 async function chat(userQuery) {
