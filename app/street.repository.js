@@ -62,6 +62,22 @@ class StreetRepository {
   }
 
   /**
+   * Finds multiple streets by their primary keys.
+   * @param {number[]} ids
+   * @returns {Street[]}
+   */
+  findAllByIds(ids) {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+    const placeholders = ids.map(() => '?').join(', ');
+    return this._query(
+        `SELECT * FROM streets WHERE id IN (${placeholders}) ORDER BY id`,
+        ...ids
+    );
+  }
+
+  /**
    * Searches both the current and old name columns for the given term
    * (case-insensitive, partial match).
    *

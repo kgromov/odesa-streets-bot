@@ -13,7 +13,7 @@ class Street {
     this.id          = id;
     this.currentName = current_name;
     this.oldName     = old_name;
-    this.notes       = notes ?? null;
+    this.notes       = notes;
   }
 
   /**
@@ -21,7 +21,7 @@ class Street {
    * @returns {boolean}
    */
   hasNotes() {
-    return this.notes !== null;
+    return this.notes;
   }
 
   /**
