@@ -1,5 +1,6 @@
-const aiConfig = require('../config/ai-config');
-const ollama = require('ollama').default;
+const StreetEmbeddings = require("../StreetEmbeddings");
+
+const SIMILARITY_THRESHOLD = 0.75;
 
 class ChatClient{
     constructor(db, vectorStore){
@@ -7,19 +8,7 @@ class ChatClient{
         this.vectorStore = vectorStore;
     }
 
-    async chat(userQuery, sess) {
-        const query = await this.checkSimilarity(userQuery, sess);
-        console.log("formatted query:", query);
-
-        const message = { role: 'user', content: query };
-        const response = await ollama.chat({ model: aiConfig.chatModel, messages: [message], stream: true });
-
-        for await (const part of response) {
-            process.stdout.write(part.message.content);
-        }
-    }
-
-    async checkSimilarity(query) {
+    async findStreets(query) {
         // TODO: move to StreetEmbeddingRepository
         const rows = this.db.prepare(`SELECT * FROM streets_embeddings`).all();
         console.log(`Fetched ${rows.length} rows`);
@@ -32,19 +21,14 @@ class ChatClient{
                 const currentNameSimilarity = this.cosineSimilarity(embedding, currentNameEmbeddings); // Compute similarity
                 const oldNameSimilarity = this.cosineSimilarity(embedding, oldNameEmbeddings); // Compute similarity
                 const similarity = Math.max(currentNameSimilarity, oldNameSimilarity);
-                // if (row.streetId === 154) {
-                //     console.log(`doc: ${row.streetId}, similarity: current = ${row.current_name} => ${currentNameSimilarity}, old = ${row.old_name} => ${oldNameSimilarity}`);
-                // }
-                if (similarity > 0.85) { // If similarity is > 2/3, include in matches
-                    if (currentNameSimilarity >= oldNameSimilarity) {
-                        matchedStreets.push(row.current_name);
-                    } else {
-                        matchedStreets.push(row.old_name);
-                    }
+                if (similarity > SIMILARITY_THRESHOLD) {
+                    const streetEmbeddings = new StreetEmbeddings(row);
+                    console.log(`Found similarity (${similarity}): ${streetEmbeddings.toString()}`);
+                    matchedStreets.push(streetEmbeddings);
                 }
             }
         }
-        console.log(`matched streets: ${JSON.stringify(matchedStreets)}, user query: ${query}`);
+        console.log(`matched streets: ${JSON.stringify(matchedStreets.map(e => e.toString()))}, user query: ${query}`);
         return matchedStreets;
     }
 

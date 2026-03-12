@@ -1,8 +1,8 @@
 require('dotenv').config();
 const TelegramClient = require('./telegram.client');
 const StreetBot      = require('./street.bot');
-const dbConfig = require('config/db-config');
-const botConfig = require('config/bot-config');
+const dbConfig = require('./config/db-config');
+const botConfig = require('./config/bot-config');
 
 if (!botConfig.botToken) {
   console.error('❌  Missing BOT_TOKEN environment variable.');

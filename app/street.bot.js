@@ -1,6 +1,9 @@
 'use strict';
 
 const StreetRepository = require('./street.repository');
+const ChatClient = require("./ai/chat-client");
+const VectorStore = require("./ai/vector-store");
+const Database = require("better-sqlite3");
 
 // ── HTML escaping (the only 3 chars Telegram HTML mode cares about) ──
 // Much safer than MarkdownV2 where every punctuation mark is a minefield.
@@ -26,6 +29,9 @@ class StreetBot {
   constructor(telegramClient, dbPath) {
     this._tg   = telegramClient;
     this._repo = new StreetRepository(dbPath);
+    const db = new Database(dbPath);
+    const vectorStore = new VectorStore();
+    this.chatClient = new ChatClient(db, vectorStore);
   }
 
   // ─────────────────────────────────────────────
@@ -114,14 +120,20 @@ class StreetBot {
    * which direction (old→new or new→old) each result represents.
    */
   async _handleQuery(chatId, query) {
-    const streets = this._repo.findByOldOrNewName(query);
+    let streets = this._repo.findByOldOrNewName(query);
 
     if (streets.length === 0) {
-      await this._tg.sendMessage(chatId,
-          `🔍 За запитом <b>${esc(query)}</b> нічого не знайдено.\n\n` +
-          `Спробуйте ввести частину назви, наприклад: <code>Суворовська</code>.`
-      );
-      return;
+      // fallback to similarity search
+      const streetEmbeddings = await this.chatClient.findStreets(query);
+      const streetIds = streetEmbeddings.map(e => e.streetId);
+      streets = this._repo.findAllByIds(streetIds);
+      if (streets.length === 0) {
+        await this._tg.sendMessage(chatId,
+            `🔍 За запитом <b>${esc(query)}</b> нічого не знайдено.\n\n` +
+            `Спробуйте ввести частину назви, наприклад: <code>Суворовська</code>.`
+        );
+        return;
+      }
     }
 
     // Cap results to avoid Telegram's 4096-char message limit

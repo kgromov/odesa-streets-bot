@@ -14,7 +14,7 @@ async function chat(userQuery) {
     const db = new Database(dbConfig.dbUrl);
     const vectorStore = new VectorStore(db);
     const chatClient = new ChatClient(db, vectorStore);
-    const query = await chatClient.checkSimilarity(userQuery)
+    const query = await chatClient.findStreets(userQuery)
     console.log("formatted query:", query);
 
     const message = { role: 'user', content: query.join('\n')};

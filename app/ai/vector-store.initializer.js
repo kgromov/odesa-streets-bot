@@ -1,7 +1,7 @@
 require('dotenv').config();
 const Database = require('better-sqlite3');
 const StreetRepository = require('../street.repository');
-const dbConfig = require('app/config/db-config');
+const dbConfig = require('../config/db-config');
 const VectorStore = require('./vector-store');
 
 const db = new Database(dbConfig.dbUrl);
