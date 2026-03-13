@@ -6,13 +6,14 @@ const dbConfig = require('../config/db-config');
 const aiConfig = require('../config/ai-config');
 
 
-const DB = new Database(dbConfig.dbUrl);
 
 class VectorStore {
 
     constructor(db) {
-        this.db = db || DB;
+        this.db = this.getDB(db);
         this.aiConfig = aiConfig;
+        process.on('SIGINT',  () => this._shutdown());
+        process.on('SIGTERM', () => this._shutdown());
     }
 
     async convertToEmbedding(streetRow) {
@@ -59,6 +60,14 @@ class VectorStore {
         });
         // console.log(JSON.stringify(res));
         return new Float32Array(res.embeddings.flat());
+    }
+
+    getDB = (_db) => {
+        return !_db ?  new Database(dbConfig.dbUrl) : _db ;
+    };
+
+    _shutdown() {
+        this.db.close();
     }
 }
 
