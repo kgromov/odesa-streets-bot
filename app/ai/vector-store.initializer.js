@@ -3,6 +3,7 @@ const Database = require('better-sqlite3');
 const StreetRepository = require('../street.repository');
 const dbConfig = require('../config/db-config');
 const VectorStore = require('./vector-store');
+const StreetEmbeddingsRepository = require("../street-embeddings.repository");
 
 const db = new Database(dbConfig.dbUrl);
 db.exec(`
@@ -18,16 +19,32 @@ db.exec(`
 
     PRAGMA journal_mode = WAL;
 `);
+const repository = new StreetRepository(dbConfig.dbUrl);
+const embeddingsRepository = new StreetEmbeddingsRepository(dbConfig.dbUrl);
 
 start();
 
 async function start() {
+    // Graceful shutdown
+    process.on('SIGINT', () => _shutdown());
+    process.on('SIGTERM', () => _shutdown());
+
     const start = new Date().getTime();
-    const repository = new StreetRepository(dbConfig.dbUrl);
-    const vectorStore = new VectorStore(db);
+
+    const vectorStore = new VectorStore(embeddingsRepository);
     const streetRows = repository.findAll();
     for (const row of streetRows) {
         await vectorStore.convertToEmbedding(row);
     }
-    console.log(`Time to embed ${repository.count()} = ${(new Date().getTime() - start)/1000} sec`);
+    repository.close();
+    embeddingsRepository.close();
+    console.log(`Time to embed ${repository.count()} = ${(new Date().getTime() - start) / 1000} sec`);
+}
+
+function _shutdown() {
+    console.log('\n👋  Shutting down…');
+    repository.close();
+    embeddingsRepository.close();
+    db.close();
+    process.exit(0);
 }

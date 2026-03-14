@@ -1,30 +1,26 @@
-const StreetEmbeddings = require("../StreetEmbeddings");
-
 const SIMILARITY_THRESHOLD = 0.75;
 
 class ChatClient{
-    constructor(db, vectorStore){
-        this.db = db;
+    constructor(embeddingsRepository, vectorStore){
+        this.embeddingsRepository = embeddingsRepository;
         this.vectorStore = vectorStore;
     }
 
     async findStreets(query) {
-        // TODO: move to StreetEmbeddingRepository
-        const rows = this.db.prepare(`SELECT * FROM streets_embeddings`).all();
-        console.log(`Fetched ${rows.length} rows`);
+        const streetEmbeddings = this.embeddingsRepository.findAll();
+        console.log(`Fetched ${streetEmbeddings.length} rows`);
         const matchedStreets = [];
-        if (rows.length > 0) {
+        if (streetEmbeddings.length > 0) {
             const embedding = await this.vectorStore.embed(query);
-            for (const row of rows) {
-                const currentNameEmbeddings = new Float32Array(row.current_name_embeddings.buffer); // from SQLite BLOB to float32array
-                const oldNameEmbeddings = new Float32Array(row.old_name_embeddings.buffer); // from SQLite BLOB to float32array
+            for (const street of streetEmbeddings) {
+                const currentNameEmbeddings = street.currentNameEmbeddings;
+                const oldNameEmbeddings = street.oldNameEmbeddings;
                 const currentNameSimilarity = this.cosineSimilarity(embedding, currentNameEmbeddings); // Compute similarity
                 const oldNameSimilarity = this.cosineSimilarity(embedding, oldNameEmbeddings); // Compute similarity
                 const similarity = Math.max(currentNameSimilarity, oldNameSimilarity);
                 if (similarity > SIMILARITY_THRESHOLD) {
-                    const streetEmbeddings = new StreetEmbeddings(row);
-                    console.log(`Found similarity (${similarity}): ${streetEmbeddings.toString()}`);
-                    matchedStreets.push(streetEmbeddings);
+                    console.log(`Found similarity (${similarity}): ${street.toString()}`);
+                    matchedStreets.push(street);
                 }
             }
         }
