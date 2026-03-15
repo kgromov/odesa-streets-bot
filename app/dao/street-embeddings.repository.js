@@ -1,11 +1,12 @@
 const Database = require("better-sqlite3");
 const {v4: uuidv4} = require('uuid');
-const StreetEmbeddings = require("./StreetEmbeddings");
+const ConnectionPool = require('./connection-pool');
+const StreetEmbeddings = require("../model/StreetEmbeddings");
 
 class StreetEmbeddingsRepository {
 
     constructor(dbPath) {
-        this._db = new Database(dbPath);
+        this._db = ConnectionPool.getConnection();
     }
 
     findById(id) {
@@ -58,8 +59,7 @@ class StreetEmbeddingsRepository {
     }
 
     close() {
-        console.log(`Close connection`);
-        this._db.close();
+        ConnectionPool.closeConnection(this._db);
     }
 
     mapToStreetEmbeddings(row) {

@@ -1,9 +1,10 @@
 require('dotenv').config();
 const Database = require('better-sqlite3');
-const StreetRepository = require('../street.repository');
+const StreetRepository = require('../dao/street.repository');
+const ConnectionPool = require('../dao/connection-pool');
 const dbConfig = require('../config/db-config');
 const VectorStore = require('./vector-store');
-const StreetEmbeddingsRepository = require("../street-embeddings.repository");
+const StreetEmbeddingsRepository = require("../dao/street-embeddings.repository");
 
 const db = new Database(dbConfig.dbUrl);
 db.exec(`
@@ -20,7 +21,6 @@ db.exec(`
     PRAGMA journal_mode = WAL;
 `);
 const repository = new StreetRepository(dbConfig.dbUrl);
-const embeddingsRepository = new StreetEmbeddingsRepository(dbConfig.dbUrl);
 
 start();
 
@@ -30,6 +30,7 @@ async function start() {
     process.on('SIGTERM', () => _shutdown());
 
     const start = new Date().getTime();
+    const embeddingsRepository = new StreetEmbeddingsRepository();
     const vectorStore = new VectorStore(embeddingsRepository);
     const streetRows = repository.findAll();
     console.log(`Total street rows: ${streetRows.length}`);
@@ -42,8 +43,7 @@ async function start() {
 
 function _shutdown() {
     console.log('\n👋  Shutting down…');
-    repository.close();
-    embeddingsRepository.close();
+    ConnectionPool.releaseResources()
     db.close();
     process.exit(0);
 }

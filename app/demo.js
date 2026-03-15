@@ -7,7 +7,7 @@
 'use strict';
 
 const path             = require('path');
-const StreetRepository = require('./street.repository');
+const StreetRepository = require('./dao/street.repository');
 
 // ── helpers ───────────────────────────────────────────────────
 

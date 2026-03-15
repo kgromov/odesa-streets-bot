@@ -3,7 +3,7 @@ const aiConfig = require('../config/ai-config');
 const ChatClient = require("./chat-client");
 const VectorStore = require("./vector-store");
 const dbConfig = require("../config/db-config");
-const StreetEmbeddingsRepository = require("../street-embeddings.repository");
+const StreetEmbeddingsRepository = require("../dao/street-embeddings.repository");
 const ollama = require('ollama').default;
 
 const embeddingsRepository = new StreetEmbeddingsRepository(dbConfig.dbUrl);

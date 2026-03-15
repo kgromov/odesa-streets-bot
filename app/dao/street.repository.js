@@ -1,5 +1,5 @@
 const { DatabaseSync } = require('node:sqlite');
-const Street = require('./Street.js');
+const Street = require('../model/Street.js');
 
 /**
  * Repository for querying renamed Odessa streets from a SQLite database.
