@@ -1,4 +1,4 @@
-const SIMILARITY_THRESHOLD = 0.75;
+const SIMILARITY_THRESHOLD = 0.8;
 
 class ChatClient{
     constructor(embeddingsRepository, vectorStore){
@@ -15,8 +15,8 @@ class ChatClient{
             for (const street of streetEmbeddings) {
                 const currentNameEmbeddings = street.currentNameEmbeddings;
                 const oldNameEmbeddings = street.oldNameEmbeddings;
-                const currentNameSimilarity = this.cosineSimilarity(embedding, currentNameEmbeddings); // Compute similarity
-                const oldNameSimilarity = this.cosineSimilarity(embedding, oldNameEmbeddings); // Compute similarity
+                const currentNameSimilarity = this.cosineSimilarity(embedding, currentNameEmbeddings);
+                const oldNameSimilarity = this.cosineSimilarity(embedding, oldNameEmbeddings);
                 const similarity = Math.max(currentNameSimilarity, oldNameSimilarity);
                 if (similarity > SIMILARITY_THRESHOLD) {
                     console.log(`Found similarity (${similarity}): ${street.toString()}`);

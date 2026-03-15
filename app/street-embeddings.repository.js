@@ -60,8 +60,8 @@ class StreetEmbeddingsRepository {
     mapToStreetEmbeddings(row) {
         return new StreetEmbeddings({
             ...row,
-            currentNameEmbeddings: new Float32Array(row.current_name_embeddings.buffer),
-            oldNameEmbeddings: new Float32Array(row.old_name_embeddings.buffer),
+            current_name_embeddings: new Float32Array(row.current_name_embeddings.buffer),
+            old_name_embeddings: new Float32Array(row.old_name_embeddings.buffer),
         });
     }
 }

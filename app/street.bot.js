@@ -3,7 +3,7 @@
 const StreetRepository = require('./street.repository');
 const ChatClient = require("./ai/chat-client");
 const VectorStore = require("./ai/vector-store");
-const Database = require("better-sqlite3");
+const StreetEmbeddingsRepository = require("./street-embeddings.repository");
 
 // ── HTML escaping (the only 3 chars Telegram HTML mode cares about) ──
 // Much safer than MarkdownV2 where every punctuation mark is a minefield.
@@ -29,9 +29,9 @@ class StreetBot {
   constructor(telegramClient, dbPath) {
     this._tg   = telegramClient;
     this._repo = new StreetRepository(dbPath);
-    const db = new Database(dbPath);
-    const vectorStore = new VectorStore();
-    this.chatClient = new ChatClient(db, vectorStore);
+    this._embeddingsRepository = new StreetEmbeddingsRepository(dbPath);
+    this._vectorStore = new VectorStore(this._embeddingsRepository);
+    this.chatClient = new ChatClient(this._embeddingsRepository, this._vectorStore);
   }
 
   // ─────────────────────────────────────────────
@@ -187,6 +187,7 @@ class StreetBot {
   _shutdown() {
     console.log('\n👋  Shutting down…');
     this._repo.close();
+    this._embeddingsRepository.close();
     process.exit(0);
   }
 }
