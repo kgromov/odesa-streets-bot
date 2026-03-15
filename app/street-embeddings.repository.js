@@ -20,6 +20,11 @@ class StreetEmbeddingsRepository {
         return this._query(`SELECT * FROM streets_embeddings`);
     }
 
+    count() {
+        const stmt = this._db.prepare('SELECT COUNT(*) AS total FROM streets_embeddings');
+        return stmt.get().total;
+    }
+
     async save(streetEmbeddings) {
         this.commit(() => {
             this._db.prepare(`

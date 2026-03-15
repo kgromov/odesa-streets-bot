@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon --experimental-sqlite app/bot.js",
     "build": "node --experimental-sqlite app/bot.js",
-    "embed": "nodemon --experimental-sqlite app/ai/vector-store.initializer.js",
+    "embed": "node --experimental-sqlite app/ai/vector-store.initializer.js",
     "chat": "nodemon --inspect --experimental-sqlite app/ai/chat-client.runner.js"
 
   },
