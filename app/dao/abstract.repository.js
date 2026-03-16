@@ -54,7 +54,7 @@ class AbstractRepository {
      * @returns {number}
      */
     count() {
-        const stmt = this._db.prepare('SELECT COUNT(*) AS total FROM ${this._tableName()}');
+        const stmt = this._db.prepare(`SELECT COUNT(*) AS total FROM ${this._tableName()}`);
         return stmt.get().total;
     }
 
