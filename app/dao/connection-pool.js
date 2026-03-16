@@ -16,10 +16,13 @@ class ConnectionPool {
     }
 
     closeConnection(connection) {
-        this.connections.push(connection);
+        if (connection?.open) {
+            this.connections.push(connection);
+        }
     }
 
     releaseResources() {
+        console.log(`Close open connections`);
         this.connections.forEach(connection => connection.close());
         this.connections.length = 0;
     }

@@ -14,7 +14,7 @@ class VectorStore {
             this.embed(streetRow.currentName),
             this.embed(streetRow.oldName)
         ]);
-        await this.embeddingsRepository.save(
+        this.embeddingsRepository.save(
             {
                 ...streetRow,
                 streetId: streetRow.id,

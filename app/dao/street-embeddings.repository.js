@@ -1,68 +1,54 @@
-const Database = require("better-sqlite3");
 const {v4: uuidv4} = require('uuid');
-const ConnectionPool = require('./connection-pool');
+const AbstractRepository = require("./abstract.repository");
 const StreetEmbeddings = require("../model/StreetEmbeddings");
 
-class StreetEmbeddingsRepository {
+class StreetEmbeddingsRepository extends AbstractRepository{
 
-    constructor(dbPath) {
-        this._db = ConnectionPool.getConnection();
-    }
-
-    findById(id) {
-        return this._queryOne(`SELECT * FROM streets_embeddings WHERE id = ?`, id);
+    constructor() {
+        super();
     }
 
     findByStreetId(streetId) {
-        return this._queryOne(`SELECT * FROM streets_embeddings WHERE streetId = ?`, streetId);
+        return this._queryOne(`SELECT * FROM ${this._tableName()} WHERE streetId = ?`, streetId);
     }
 
-    findAll() {
-        return this._query(`SELECT * FROM streets_embeddings`);
+    saveAll(streetEmbeddings) {
+        // this.commit(() => {
+        //     const statement = this._db.prepare(`INSERT INTO streets_embeddings VALUES (?, ?, ?, ?, ?, ?)`);
+        //     streetEmbeddings.forEach((streetEmbedding) => statement.run(
+        //         uuidv4(),
+        //         streetEmbedding.streetId,
+        //         streetEmbedding.currentName,
+        //         streetEmbedding.currentNameEmbeddings,
+        //         streetEmbedding.oldName,
+        //         streetEmbedding.oldNameEmbeddings
+        //     ));
+        // });
+
+        this._commit(() => {
+            streetEmbeddings.forEach((streetEmbedding) => this.save(streetEmbedding));
+        });
     }
 
-    count() {
-        const stmt = this._db.prepare('SELECT COUNT(*) AS total FROM streets_embeddings');
-        return stmt.get().total;
-    }
-
-    async save(streetEmbeddings) {
-        this.commit(() => {
-            this._db.prepare(`
-                INSERT INTO streets_embeddings
-                VALUES (?, ?, ?, ?, ?, ?)
-            `).run(
+    save(streetEmbedding) {
+        this._commit(() => {
+            const statement = this._db.prepare(`INSERT INTO ${this._tableName()} VALUES (?, ?, ?, ?, ?, ?)`);
+            statement.run(
                 uuidv4(),
-                streetEmbeddings.streetId,
-                streetEmbeddings.currentName,
-                streetEmbeddings.currentNameEmbeddings,
-                streetEmbeddings.oldName,
-                streetEmbeddings.oldNameEmbeddings
+                streetEmbedding.streetId,
+                streetEmbedding.currentName,
+                streetEmbedding.currentNameEmbeddings,
+                streetEmbedding.oldName,
+                streetEmbedding.oldNameEmbeddings
             );
         });
     }
 
-    _query(sql, ...params) {
-        const stmt = this._db.prepare(sql);
-        const rows = stmt.all(...params);
-        return rows.map(row => this.mapToStreetEmbeddings(row));
+    _tableName() {
+        return 'streets_embeddings';
     }
 
-    _queryOne(sql, ...params) {
-        const stmt = this._db.prepare(sql);
-        const row  = stmt.get(...params);
-        return row ? this.mapToStreetEmbeddings(row) : null;
-    }
-
-    commit(fn) {
-        this._db.transaction(fn)();
-    }
-
-    close() {
-        ConnectionPool.closeConnection(this._db);
-    }
-
-    mapToStreetEmbeddings(row) {
+    _mapToStreetEmbeddings(row) {
         return new StreetEmbeddings({
             ...row,
             current_name_embeddings: new Float32Array(row.current_name_embeddings.buffer),

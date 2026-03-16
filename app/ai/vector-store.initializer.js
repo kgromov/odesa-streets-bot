@@ -11,14 +11,16 @@ db.exec(`
     CREATE TABLE IF NOT EXISTS streets_embeddings
     (
         id                      TEXT PRIMARY KEY,
-        streetId                INTEGER,
+        streetId                INTEGER REFERENCES streets(id),
         current_name            TEXT,
         current_name_embeddings BLOB,
         old_name                TEXT,
         old_name_embeddings     BLOB
     );
 
+    PRAGMA foreign_keys = ON;
     PRAGMA journal_mode = WAL;
+    PRAGMA auto_vacuum = ON;
 `);
 const repository = new StreetRepository(dbConfig.dbUrl);
 
