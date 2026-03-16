@@ -2,10 +2,9 @@ require('dotenv').config();
 const aiModel = require('ollama').default;
 const aiConfig = require('../config/ai-config');
 
-class VectorStore {
+class StreetEmbedder {
 
-    constructor(embeddingsRepository) {
-        this.embeddingsRepository = embeddingsRepository;
+    constructor() {
     }
 
     async convertToEmbedding(streetRow) {
@@ -14,14 +13,12 @@ class VectorStore {
             this.embed(streetRow.currentName),
             this.embed(streetRow.oldName)
         ]);
-        this.embeddingsRepository.save(
-            {
-                ...streetRow,
-                streetId: streetRow.id,
-                currentNameEmbeddings,
-                oldNameEmbeddings
-            }
-        );
+       return {
+           ...streetRow,
+           streetId: streetRow.id,
+           currentNameEmbeddings,
+           oldNameEmbeddings
+       };
     }
 
     async embed(content) {
@@ -35,4 +32,4 @@ class VectorStore {
     }
 }
 
-module.exports = VectorStore;
+module.exports = StreetEmbedder;

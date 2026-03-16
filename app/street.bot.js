@@ -2,9 +2,9 @@
 
 const StreetRepository = require('./dao/street.repository');
 const ChatClient = require("./ai/chat-client");
-const VectorStore = require("./ai/vector-store");
 const StreetEmbeddingsRepository = require("./dao/street-embeddings.repository");
 const ConnectionPool = require('./dao/connection-pool');
+const StreetEmbedder = require("./ai/street.embedder.service");
 
 
 // ── HTML escaping (the only 3 chars Telegram HTML mode cares about) ──
@@ -32,7 +32,7 @@ class StreetBot {
     this._tg   = telegramClient;
     this._repo = new StreetRepository(dbPath);
     this._embeddingsRepository = new StreetEmbeddingsRepository();
-    this._vectorStore = new VectorStore(this._embeddingsRepository);
+    this._vectorStore = new StreetEmbedder();
     this.chatClient = new ChatClient(this._embeddingsRepository, this._vectorStore);
   }
 

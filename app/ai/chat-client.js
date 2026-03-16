@@ -13,10 +13,8 @@ class ChatClient{
         if (streetEmbeddings.length > 0) {
             const embedding = await this.vectorStore.embed(query);
             for (const street of streetEmbeddings) {
-                const currentNameEmbeddings = street.currentNameEmbeddings;
-                const oldNameEmbeddings = street.oldNameEmbeddings;
-                const currentNameSimilarity = this.cosineSimilarity(embedding, currentNameEmbeddings);
-                const oldNameSimilarity = this.cosineSimilarity(embedding, oldNameEmbeddings);
+                const currentNameSimilarity = this.cosineSimilarity(embedding, street.currentNameEmbeddings);
+                const oldNameSimilarity = this.cosineSimilarity(embedding, street.oldNameEmbeddings);
                 const similarity = Math.max(currentNameSimilarity, oldNameSimilarity);
                 if (similarity > SIMILARITY_THRESHOLD) {
                     console.log(`Found similarity (${similarity}): ${street.toString()}`);

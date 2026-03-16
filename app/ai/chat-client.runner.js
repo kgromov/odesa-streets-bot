@@ -1,9 +1,9 @@
 require('dotenv').config();
 const aiConfig = require('../config/ai-config');
 const ChatClient = require("./chat-client");
-const VectorStore = require("./vector-store");
 const dbConfig = require("../config/db-config");
 const StreetEmbeddingsRepository = require("../dao/street-embeddings.repository");
+const StreetEmbedder = require("./street.embedder.service");
 const ollama = require('ollama').default;
 
 const embeddingsRepository = new StreetEmbeddingsRepository(dbConfig.dbUrl);
@@ -15,7 +15,7 @@ async function chat(userQuery) {
     process.on('SIGTERM', () => _shutdown());
 
     const embeddingsRepository = new StreetEmbeddingsRepository(dbConfig.dbUrl);
-    const vectorStore = new VectorStore(embeddingsRepository);
+    const vectorStore = new StreetEmbedder();
     const chatClient = new ChatClient(embeddingsRepository, vectorStore);
     const query = await chatClient.findStreets(userQuery)
     console.log("formatted query:", query);

@@ -3,10 +3,10 @@ const Database = require('better-sqlite3');
 const StreetRepository = require('../dao/street.repository');
 const ConnectionPool = require('../dao/connection-pool');
 const dbConfig = require('../config/db-config');
-const VectorStore = require('./vector-store');
 const StreetEmbeddingsRepository = require("../dao/street-embeddings.repository");
+const StreetEmbedder = require("./street.embedder.service");
 
-const db = new Database(dbConfig.dbUrl);
+const db = ConnectionPool.getConnection();
 db.exec(`
     CREATE TABLE IF NOT EXISTS streets_embeddings
     (
@@ -33,19 +33,20 @@ async function start() {
 
     const start = new Date().getTime();
     const embeddingsRepository = new StreetEmbeddingsRepository();
-    const vectorStore = new VectorStore(embeddingsRepository);
+    const embedder = new StreetEmbedder();
     const streetRows = repository.findAll();
     console.log(`Total street rows: ${streetRows.length}`);
-    for (const row of streetRows) {
-        await vectorStore.convertToEmbedding(row);
-    }
-    console.log(`Total street embeddings rows: ${embeddingsRepository.count()}`);
+    const embeddings = await Promise.all(
+        streetRows.map(row => embedder.convertToEmbedding(row))
+    );
+    console.log(`Total street embeddings rows: ${embeddings.length}`);
+    embeddingsRepository.saveAll(embeddings);
+    console.log(`Total street inserted embeddings rows: ${embeddingsRepository.count()}`);
     console.log(`Time to embed ${repository.count()} = ${(new Date().getTime() - start) / 1000} sec`);
 }
 
 function _shutdown() {
     console.log('\n👋  Shutting down…');
-    ConnectionPool.releaseResources()
-    db.close();
+    ConnectionPool.releaseResources();
     process.exit(0);
 }
