@@ -1,8 +1,6 @@
 require('dotenv').config();
-const Database = require('better-sqlite3');
 const StreetRepository = require('../dao/street.repository');
 const ConnectionPool = require('../dao/connection-pool');
-const dbConfig = require('../config/db-config');
 const StreetEmbeddingsRepository = require("../dao/street-embeddings.repository");
 const StreetEmbedder = require("./street.embedder.service");
 
@@ -22,7 +20,6 @@ db.exec(`
     PRAGMA journal_mode = WAL;
     PRAGMA auto_vacuum = ON;
 `);
-const repository = new StreetRepository(dbConfig.dbUrl);
 
 start();
 
@@ -32,6 +29,7 @@ async function start() {
     process.on('SIGTERM', () => _shutdown());
 
     const start = new Date().getTime();
+    const repository = new StreetRepository();
     const embeddingsRepository = new StreetEmbeddingsRepository();
     const embedder = new StreetEmbedder();
     const streetRows = repository.findAll();

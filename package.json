@@ -7,10 +7,10 @@
   "type": "commonjs",
   "main": "app/bot.js",
   "scripts": {
-    "dev": "nodemon --experimental-sqlite app/bot.js",
-    "build": "node --experimental-sqlite app/bot.js",
-    "embed": "node --experimental-sqlite app/ai/vector-store.initializer.js",
-    "chat": "nodemon --inspect --experimental-sqlite app/ai/chat-client.runner.js"
+    "dev": "nodemon app/bot.js",
+    "build": "node app/bot.js",
+    "embed": "node app/ai/vector-store.initializer.js",
+    "chat": "nodemon --inspect app/ai/chat-client.runner.js"
 
   },
   "dependencies": {

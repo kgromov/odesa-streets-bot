@@ -26,11 +26,10 @@ const esc = str =>
 class StreetBot {
   /**
    * @param {object} telegramClient - Instance of TelegramClient
-   * @param {string} dbPath         - Path to the SQLite database
    */
-  constructor(telegramClient, dbPath) {
+  constructor(telegramClient) {
     this._tg   = telegramClient;
-    this._repo = new StreetRepository(dbPath);
+    this._repo = new StreetRepository();
     this._embeddingsRepository = new StreetEmbeddingsRepository();
     this._vectorStore = new StreetEmbedder();
     this.chatClient = new ChatClient(this._embeddingsRepository, this._vectorStore);
@@ -188,7 +187,6 @@ class StreetBot {
 
   _shutdown() {
     console.log('\n👋  Shutting down…');
-    this._repo.close();
     ConnectionPool.releaseResources();
     process.exit(0);
   }

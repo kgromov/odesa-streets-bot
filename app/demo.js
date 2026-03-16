@@ -6,8 +6,8 @@
 // ──────────────────────────────────────────────────────────────
 'use strict';
 
-const path             = require('path');
 const StreetRepository = require('./dao/street.repository');
+const ConnectionPool = require('./dao/connection-pool');
 
 // ── helpers ───────────────────────────────────────────────────
 
@@ -29,9 +29,7 @@ function printStreets(streets, label) {
 }
 
 // ── main ──────────────────────────────────────────────────────
-
-const DB_PATH = path.join(__dirname, 'odessa_streets.db');
-const repo    = new StreetRepository(DB_PATH);
+const repo    = new StreetRepository();
 
 log(hr('═'));
 log('  ODESSA STREETS — repository demo client');
@@ -86,5 +84,5 @@ if (searchTerm) {
   log(' ', JSON.stringify(withNotes[0].toJSON(), null, 2).replace(/\n/g, '\n  '));
 }
 
-repo.close();
+ConnectionPool.releaseResources();
 log(`\n${hr('═')}\n`);

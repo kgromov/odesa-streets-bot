@@ -1,7 +1,6 @@
 require('dotenv').config();
 const TelegramClient = require('./telegram.client');
 const StreetBot      = require('./street.bot');
-const dbConfig = require('./config/db-config');
 const botConfig = require('./config/bot-config');
 
 if (!botConfig.botToken) {
@@ -12,7 +11,7 @@ if (!botConfig.botToken) {
 }
 
 const client = new TelegramClient(botConfig.botToken);
-const bot    = new StreetBot(client, dbConfig.dbUrl);
+const bot    = new StreetBot(client);
 
 bot.start().catch(err => {
   console.error('Fatal error:', err);
