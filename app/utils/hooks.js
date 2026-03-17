@@ -1,14 +1,15 @@
 const ConnectionPool = require("../dao/connection-pool");
+
 exports.registerShutdownHooks = function (fn) {
-    process.on('SIGINT', () => _shutdown());
-    process.on('SIGTERM', () => _shutdown());
+    process.on('SIGINT', () => _shutdown(fn));
+    process.on('SIGTERM', () => _shutdown(fn));
     process.on('uncaughtException', (err) => {
         console.error('Uncaught exception:', err);
-        _shutdown();
+        _shutdown(fn);
     });
     process.on('unhandledRejection', (err) => {
         console.error('Unhandled rejection:', err);
-        _shutdown();
+        _shutdown(fn);
     });
 }
 
