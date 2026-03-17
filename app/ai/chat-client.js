@@ -1,4 +1,4 @@
-const SIMILARITY_THRESHOLD = 0.8;
+const SIMILARITY_THRESHOLD = 0.85;
 
 class ChatClient{
     constructor(embeddingsRepository, vectorStore){
