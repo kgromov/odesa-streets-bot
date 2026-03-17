@@ -3,7 +3,6 @@
 const StreetRepository = require('./dao/street.repository');
 const ChatClient = require("./ai/chat-client");
 const StreetEmbeddingsRepository = require("./dao/street-embeddings.repository");
-const ConnectionPool = require('./dao/connection-pool');
 const StreetEmbedder = require("./ai/street.embedder.service");
 
 
@@ -47,10 +46,6 @@ class StreetBot {
     console.log(`🤖  Bot started: @${me.username} (id ${me.id})`);
     console.log(`📂  Database: ${this._repo.count()} streets loaded`);
     console.log('    Waiting for messages…\n');
-
-    // Graceful shutdown
-    process.on('SIGINT',  () => this._shutdown());
-    process.on('SIGTERM', () => this._shutdown());
 
     // Main loop
     while (true) {
@@ -183,12 +178,6 @@ class StreetBot {
 
   _sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  _shutdown() {
-    console.log('\n👋  Shutting down…');
-    ConnectionPool.releaseResources();
-    process.exit(0);
   }
 }
 
